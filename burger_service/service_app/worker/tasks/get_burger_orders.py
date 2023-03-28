@@ -1,8 +1,8 @@
 import json
 import logging
 
-import burger_service.worker as worker
-import burger_service.db as db
+import service_app.worker as worker
+import service_app.db as db
 
 log = logging.getLogger(__name__)
 

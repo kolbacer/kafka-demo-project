@@ -1,6 +1,6 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Float
 from sqlalchemy.orm import relationship
-import burger_service.db as db
+import service_app.db as db
 
 Base = db.Base
 

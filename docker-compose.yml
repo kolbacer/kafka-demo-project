@@ -23,3 +23,64 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
+
+  sqlite3:
+    image: nouchka/sqlite3:latest
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./db/:/root/db/
+
+  # Burger services
+  burger_customer:
+    build:
+      context: ./burger_customer
+    restart: always
+    depends_on:
+      - kafka
+      - zookeeper
+    ports:
+      - "8000:8000"
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9093
+      - KAFKA_CONSUMPTION_TOPIC=consumption
+      - KAFKA_NOTIFICATION_TOPIC=notification
+      - KAFKA_CONSUMER_GROUP=customer_group
+
+  burger_maker:
+    build:
+      context: ./burger_maker
+    restart: always
+    depends_on:
+      - kafka
+      - zookeeper
+    ports:
+      - "8001:8001"
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8001
+      - KAFKA_COOKING_TOPIC=cooking
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9093
+
+  burger_service:
+    build:
+      context: ./burger_service
+    restart: always
+    depends_on:
+      - kafka
+      - zookeeper
+      - sqlite3
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./db/:/code/dbpath/
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8002
+      - KAFKA_COOKING_TOPIC=cooking
+      - KAFKA_CONSUMPTION_TOPIC=consumption
+      - KAFKA_NOTIFICATION_TOPIC=notification
+      - KAFKA_CONSUMER_GROUP=service_group
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9093

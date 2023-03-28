@@ -3,8 +3,8 @@ import logging
 import os
 import aiokafka
 
-import burger_service.worker.tasks.get_new_burgers as cooking_task
-import burger_service.worker.tasks.get_burger_orders as consumption_task
+import service_app.worker.tasks.get_new_burgers as cooking_task
+import service_app.worker.tasks.get_burger_orders as consumption_task
 
 # env variables
 KAFKA_COOKING_TOPIC = os.getenv('KAFKA_COOKING_TOPIC', "cooking")

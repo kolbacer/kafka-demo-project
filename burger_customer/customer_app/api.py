@@ -6,8 +6,7 @@ from sse_starlette.sse import EventSourceResponse
 from starlette.responses import HTMLResponse
 from pydantic import BaseModel
 
-import burger_customer.worker as worker
-import burger_customer
+import customer_app.worker as worker
 
 app = FastAPI()
 
@@ -50,6 +49,7 @@ async def eat(burgerOrder: BurgerOrder):
 async def notification_generator(request):
     global count
     while True:
+        print("count = ", count)
         if await request.is_disconnected():
             log.warning("Client disconnected!")
             break
@@ -61,13 +61,13 @@ async def notification_generator(request):
 
 @app.get('/stream-notifications')
 async def stream(request: Request):
+    print("/stream-notifications")
     event_generator = notification_generator(request)
     return EventSourceResponse(event_generator)
 
 
 @app.get('/board', response_class=HTMLResponse)
 async def board():
-    url = f'http://{burger_customer.API_HOST}:{burger_customer.API_PORT}/stream-notifications'
     html_content = """
         <html>
             <head>
@@ -78,12 +78,12 @@ async def board():
                 <div id="notifications">
                 </div>
                 <script>
-                    var source = new EventSource("%s");
+                    var source = new EventSource("/stream-notifications");
                     source.onmessage = function(event) {
                         document.getElementById("notifications").innerHTML += event.data + "<br>";
                     };
                 </script>
             </body>
         </html>
-        """ % url
+        """
     return HTMLResponse(content=html_content, status_code=200)

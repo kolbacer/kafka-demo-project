@@ -3,7 +3,7 @@ import aiokafka
 import asyncio
 import logging
 
-import burger_customer.worker.tasks.get_notifications as notification_task
+import customer_app.worker.tasks.get_notifications as notification_task
 
 # env variables
 KAFKA_CONSUMPTION_TOPIC = os.getenv('KAFKA_CONSUMPTION_TOPIC', "consumption")

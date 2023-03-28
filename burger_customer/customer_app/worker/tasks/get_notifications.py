@@ -1,7 +1,7 @@
 import json
 import logging
 
-import burger_customer.api as api
+import customer_app.api as api
 
 log = logging.getLogger(__name__)
 

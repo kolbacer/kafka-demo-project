@@ -1,13 +1,18 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 import logging
 
-import burger_service.worker as worker
-import burger_service.db as db
+import maker_app.worker as worker
 
 app = FastAPI()
 
 log = logging.getLogger(__name__)
+
+
+class Burger(BaseModel):
+    name: str
+    price: float
 
 
 @app.on_event("startup")
@@ -27,11 +32,9 @@ async def root():
     return {"message": "I'm working!"}
 
 
-@app.get("/burgerlist")
-async def burgerlist():
-    return await db.get_burgers()
-
-
-@app.get("/orderlist")
-async def orderlist():
-    return await db.get_orders()
+@app.post("/make")
+async def make(burger: Burger):
+    cooking_producer = await worker.get_cooking_producer()
+    await cooking_producer.send_and_wait(worker.KAFKA_COOKING_TOPIC,
+                                         burger.json().encode('utf-8'))
+    return burger
