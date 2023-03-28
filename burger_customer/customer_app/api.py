@@ -49,7 +49,6 @@ async def eat(burgerOrder: BurgerOrder):
 async def notification_generator(request):
     global count
     while True:
-        print("count = ", count)
         if await request.is_disconnected():
             log.warning("Client disconnected!")
             break
@@ -61,7 +60,6 @@ async def notification_generator(request):
 
 @app.get('/stream-notifications')
 async def stream(request: Request):
-    print("/stream-notifications")
     event_generator = notification_generator(request)
     return EventSourceResponse(event_generator)
 
